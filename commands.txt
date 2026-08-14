@@ -1,0 +1,5 @@
+Input file in Hadoop -- hdfs dfs -put "/Users/mandal/3rd_Sem/Data_Analytics/input.txt" /input
+Check the files -- hdfs dfs -ls /input
+Run Word Count -- hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar wordcount /input /output
+See output -- hdfs dfs -cat /output/part-r-00000
+
