@@ -58,13 +58,16 @@ public class MovieTags {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    if (args.length != 2) {
+  public static void main(String[] args) throws Exception 
+  {
+    Configuration conf = new Configuration();
+    String[] otherArgs = new org.apache.hadoop.util.GenericOptionsParser(conf, args).getRemainingArgs();
+    
+    if (otherArgs.length != 2) {
       System.err.println("Usage: MovieTags <input path> <output path>");
       System.exit(-1);
     }
     
-    Configuration conf = new Configuration();
     Job job = Job.getInstance(conf, "movie tags");
     job.setJarByClass(MovieTags.class);
     
@@ -74,8 +77,8 @@ public class MovieTags {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
     
-    FileInputFormat.addInputPath(job, new Path(args[0]));
-    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+    FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
     
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
