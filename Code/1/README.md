@@ -1,8 +1,43 @@
 # Project 1: Install Hadoop and Perform HDFS Tasks
 
-This guide covers the basic setup and fundamental commands needed to interact with the Hadoop Distributed File System (HDFS). 
+This guide covers the installation of Hadoop on a Mac and the fundamental commands needed to interact with the Hadoop Distributed File System (HDFS). 
 
-## 1. Starting Hadoop
+## 1. Installing Hadoop on Mac (via Homebrew)
+The easiest way to install Hadoop on macOS is by using the Homebrew package manager.
+
+### Prerequisites
+Hadoop requires Java (usually Java 8 or Java 11) and remote login (SSH) to be enabled on your Mac.
+1. Enable Remote Login: Go to **System Settings > General > Sharing** and turn on **Remote Login**.
+2. Setup Passwordless SSH:
+   ```bash
+   ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+   cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+   ssh localhost
+   ```
+   *(If asked to add the host to the known_hosts file, type `yes`).*
+
+### Installation Steps
+1. **Install Java (if not already installed):**
+   ```bash
+   brew install openjdk@11
+   ```
+2. **Install Hadoop:**
+   ```bash
+   brew install hadoop
+   ```
+3. **Configure Hadoop:**
+   Hadoop configuration files are usually located at `/opt/homebrew/opt/hadoop/libexec/etc/hadoop/` (on Apple Silicon) or `/usr/local/opt/hadoop/libexec/etc/hadoop/` (on Intel).
+   You will need to edit files like `core-site.xml`, `hdfs-site.xml`, `mapred-site.xml`, and `yarn-site.xml` to set up Pseudo-Distributed mode.
+   
+4. **Format the NameNode:**
+   *(Only do this once, immediately after installation and configuration!)*
+   ```bash
+   hdfs namenode -format
+   ```
+
+---
+
+## 2. Starting Hadoop
 Before performing any HDFS tasks, you must ensure that your Hadoop cluster is running.
 ```bash
 # Start all Hadoop daemons (NameNode, DataNode, ResourceManager, NodeManager)
@@ -13,7 +48,9 @@ jps
 ```
 *(You should see NameNode, DataNode, ResourceManager, NodeManager, and SecondaryNameNode in the output).*
 
-## 2. Basic HDFS Operations
+---
+
+## 3. Basic HDFS Operations
 
 ### Creating Directories
 To create a new directory inside HDFS, use the `-mkdir` command. The `-p` flag ensures parent directories are created if they don't exist.
@@ -22,7 +59,7 @@ hdfs dfs -mkdir -p /user/hadoop/input
 ```
 
 ### Adding Files to HDFS (Upload)
-To copy a file from your local machine (Mac/Linux) into HDFS, use the `-put` or `-copyFromLocal` command.
+To copy a file from your local machine into HDFS, use the `-put` or `-copyFromLocal` command.
 ```bash
 # Create a sample local file
 echo "Hello Hadoop" > sample.txt
@@ -60,7 +97,9 @@ hdfs dfs -rm /user/hadoop/input/sample.txt
 hdfs dfs -rm -r /user/hadoop/input
 ```
 
-## 3. Stopping Hadoop
+---
+
+## 4. Stopping Hadoop
 When you are done with your HDFS tasks, you should safely shut down the Hadoop services.
 ```bash
 stop-all.sh
