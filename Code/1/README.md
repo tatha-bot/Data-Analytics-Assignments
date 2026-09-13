@@ -6,9 +6,9 @@ This guide covers the installation of Hadoop on a Mac and the fundamental comman
 The easiest way to install Hadoop on macOS is by using the Homebrew package manager.
 
 ### Prerequisites
-Hadoop requires Java (usually Java 8 or Java 11) and remote login (SSH) to be enabled on your Mac.
-1. Enable Remote Login: Go to **System Settings > General > Sharing** and turn on **Remote Login**.
-2. Setup Passwordless SSH:
+Hadoop uses SSH to start and stop its various background processes (NameNode, DataNode, etc.), even if you are only running it locally on a single machine. Therefore, remote login must be enabled.
+1. **Enable Remote Login:** Go to **System Settings > General > Sharing** and turn on **Remote Login**.
+2. **Setup Passwordless SSH:**
    ```bash
    ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
