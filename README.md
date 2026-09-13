@@ -1,67 +1,39 @@
 # Data Analytics Assignments
 
-This repository contains various Hadoop and Data Analytics programs. 
+Welcome to the Data Analytics Assignments repository! This repository contains a collection of Hadoop MapReduce projects and HDFS guides, ranging from cluster setup to data processing algorithms.
 
-## Project 1: Install Hadoop and Perform HDFS Tasks (Mac via Homebrew)
+## Prerequisites
+To run the code in this repository, you will need:
+- **Java** (Java 8 or 11 recommended)
+- **Hadoop** (Configured in Pseudo-Distributed or Distributed mode)
 
-### Prerequisites
-- Homebrew installed on your Mac.
-- Java (JDK) installed (Hadoop requires Java).
+## Assignments & Projects
 
-### Installation Steps
-1. **Install Hadoop using Homebrew**:
+This repository is organized into numbered folders inside the `Code/` directory. Each project has its own dedicated `README.md` with step-by-step instructions on how to compile, set up, and run the job.
+
+### [Project 1: Hadoop Installation and HDFS Tasks](./Code/1/README.md)
+A comprehensive, end-to-end guide on installing Hadoop from scratch on macOS via Homebrew. It covers configuring XML files for a Pseudo-Distributed cluster and provides a cheat sheet for fundamental HDFS commands (creating directories, uploading, downloading, and deleting files).
+
+### [Project 2: MapReduce Word Count](./Code/2/README.md)
+Demonstrates the classic MapReduce "Word Count" algorithm. The guide shows how to run the highly optimized Hadoop built-in WordCount example, as well as how to compile and run the custom Java implementation provided in the folder.
+
+### [Project 3: Matrix Multiplication](./Code/3/README.md)
+A MapReduce application that performs Matrix Multiplication. This project includes a sparse matrix input format and demonstrates how to pass matrix dimensions to the Mapper and Reducer through the Hadoop Configuration object.
+
+### [Project 4: Movie Tags Extraction](./Code/4/README.md)
+A data extraction job using the popular MovieLens dataset. This MapReduce program processes the `tags.csv` file, filters out the headers, and groups all user-generated tags by `movieId` into a clean, separated list. 
+
+---
+
+## How to Use This Repository
+1. **Clone the repository:**
    ```bash
-   brew install hadoop
+   git clone https://github.com/tatha-bot/Data-Analytics-Assignments.git
+   cd Data-Analytics-Assignments
    ```
-
-2. **Configure Hadoop**:
-   Open `/opt/homebrew/opt/hadoop/libexec/etc/hadoop/hadoop-env.sh` (or `/usr/local/...` for Intel Macs) and set `JAVA_HOME`.
+2. **Navigate to a specific project:**
    ```bash
-   export JAVA_HOME=$(/usr/libexec/java_home)
+   cd Code/<Project_Number>
    ```
-
-3. **Configure `core-site.xml`**:
-   Edit `core-site.xml` located in the Hadoop config directory to add:
-   ```xml
-   <configuration>
-       <property>
-           <name>fs.defaultFS</name>
-           <value>hdfs://localhost:9000</value>
-       </property>
-   </configuration>
-   ```
-
-4. **Configure `hdfs-site.xml`**:
-   Edit `hdfs-site.xml` to add:
-   ```xml
-   <configuration>
-       <property>
-           <name>dfs.replication</name>
-           <value>1</value>
-       </property>
-   </configuration>
-   ```
-
-5. **Format NameNode** (Do this only once):
-   ```bash
-   hdfs namenode -format
-   ```
-
-6. **Start Hadoop Services**:
-   ```bash
-   start-dfs.sh
-   start-yarn.sh
-   ```
-
-### Basic HDFS Tasks
-- **Create a directory**: `hdfs dfs -mkdir /my_directory`
-- **Upload a file**: `hdfs dfs -put local_file.txt /my_directory/`
-- **Read file content**: `hdfs dfs -cat /my_directory/local_file.txt`
-- **Download a file**: `hdfs dfs -get /my_directory/local_file.txt ./`
-- **Delete a file**: `hdfs dfs -rm /my_directory/local_file.txt`
-
-## Other Projects Included
-- **[Project 2](Code/2/)**: Word Count using Hadoop MapReduce
-- **[Project 3](Code/3/)**: Matrix Multiplication using Hadoop MapReduce
-- **[Project 4](Code/4/)**: Find tags associated with each movie (MovieLens dataset)
-
+3. **Follow the instructions:**
+   Open the `README.md` inside that specific project folder and follow the step-by-step execution guide!
