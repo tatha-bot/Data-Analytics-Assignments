@@ -196,6 +196,87 @@ All assignments live under [`Code/`](./Code).
 
 ---
 
+## How Each Assignment Works
+
+### Code 1 — Hadoop Installation & HDFS Tasks
+- **Goal:** Set up single-node (Pseudo-Distributed) Hadoop on macOS and practice core HDFS operations.
+- **How it works:** Configures `core-site.xml` (`fs.defaultFS=hdfs://localhost:9000`), `hdfs-site.xml` (`dfs.replication=1`), `mapred-site.xml` (YARN), and `yarn-site.xml` (`mapreduce_shuffle`), formats the NameNode once, starts daemons via `start-all.sh`, and runs HDFS commands (`mkdir`, `put`, `ls`, `cat`, `get`, `rm`).
+
+### Code 2 — MapReduce Word Count (`WordCount.java`)
+- **Goal:** Count word frequencies across text files in HDFS.
+- **How it works:**
+  1. `TokenizerMapper` splits each input line into tokens with `StringTokenizer` and emits `(word, 1)`.
+  2. `IntSumReducer` (used as both Combiner and Reducer) sums the counts per word and outputs `(word, total_count)`.
+
+### Code 3 — Matrix Multiplication (`MatrixMultiplication.java`)
+- **Goal:** Multiply two sparse matrices $A_{m \times n}$ and $B_{n \times p}$ in MapReduce.
+- **How it works:**
+  1. Reads coordinate records `A,i,j,value` and `B,j,k,value` along with dimensions `m`, `n`, `p` passed via Hadoop `Configuration`.
+  2. `MatrixMapper` emits `(i,k)` as the key for every output cell affected by `A(i,j)` or `B(j,k)`, tagging values with `"A,j,val"` or `"B,j,val"`.
+  3. `MatrixReducer` stores `A` and `B` entries in two `HashMap<Integer, Float>` maps keyed by `j`, computes $\sum_{j=0}^{n-1} A(i,j) \cdot B(j,k)$, and writes non-zero `i,k,result` entries.
+
+### Code 4 — Movie Tags Extraction (`MovieTags.java`)
+- **Goal:** Aggregate all user-assigned tags per movie from MovieLens `tags.csv`.
+- **How it works:**
+  1. `TagMapper` skips the CSV header (`userId,movieId,tag,timestamp`), splits each line, and emits `(movieId, tag)`.
+  2. `TagReducer` concatenates all tags for each `movieId` separated by `" | "`.
+
+### Code 5 — HiveQL Sorting & Aggregation (`hive_queries.hql`)
+- **Goal:** Create a Hive table from `data.csv` and run analytical SQL queries.
+- **How it works:** Defines `sales_records` (`transaction_id`, `product_category`, `sales_amount`, `store_location`), loads `data.csv` with `LOAD DATA LOCAL INPATH`, and executes `GROUP BY` (`SUM`, `COUNT`), global `AVG`/`MAX`, `ORDER BY` (global sort via single reducer), `SORT BY` (per-reducer local sort), and `GROUP BY ... HAVING ... ORDER BY`.
+
+### Code 6 — Maximum Temperature Finder (`MaxTemperature.java`)
+- **Goal:** Find the maximum temperature per year and the overall maximum temperature using Spark Java RDDs.
+- **How it works:**
+  1. Loads `temperatures.txt` with `sc.textFile(...)` and filters out blank/comment/header lines.
+  2. `flatMapToPair` parses CSV (`Year,Temp`), whitespace-delimited, or fixed-width NCDC lines and drops invalid/sentinel values (`9999.0`, `999.9`).
+  3. `reduceByKey(Math::max)` finds each year's max temperature in parallel, `sortByKey(true)` orders chronologically, and the driver prints the yearly table and overall max.
+
+### Code 7 — Clustering Techniques (`clustering_spark.py`)
+- **Goal:** Compare K-Means, Bisecting K-Means, and Gaussian Mixture Models (GMM) on Spark MLlib and find optimal $k$.
+- **How it works:**
+  1. Loads `clustering_data.csv`, assembles numeric columns with `VectorAssembler`, and scales them with `StandardScaler`.
+  2. Fits `KMeans`, `BisectingKMeans`, and `GaussianMixture` with $k=3$, evaluates each with `ClusteringEvaluator` (Silhouette Score), and prints cluster counts.
+  3. Runs a Silhouette sweep for $k \in \{2,3,4,5\}$ with `KMeans` to pick the optimal $k$.
+
+### Code 13 — Bayes' Theorem for Two-Class Classification (`bayes_two_class.py`)
+- **Goal:** Classify `setosa` vs. `versicolor` in `iris.csv` using both manual Bayes' Theorem and Spark MLlib.
+- **How it works:**
+  1. Filters `iris.csv` to the two classes and splits 80/20 into train/test.
+  2. **Part 1 (First-Principles):** Computes class priors $P(C_k)$ and per-feature Gaussian parameters ($\mu, \sigma$) using distributed Spark `avg` and `stddev_pop` aggregations, then classifies test rows via Gaussian PDF likelihood $\times$ prior.
+  3. **Part 2 (Spark MLlib):** Encodes labels with `StringIndexer`, builds feature vectors with `VectorAssembler`, trains `NaiveBayes(modelType="gaussian")`, and prints accuracy, precision, recall, F1, and confusion matrix.
+
+### Code 14 — SMS Spam Detection (`sms_spam_naive_bayes.py`)
+- **Goal:** Classify SMS messages as `ham` or `spam` using a Spark NLP + Naive Bayes pipeline.
+- **How it works:**
+  1. Loads `spam.csv` and splits 80/20 into train/test.
+  2. Builds a 6-stage `Pipeline`: `StringIndexer` → `RegexTokenizer` → `StopWordsRemover` → `HashingTF(4096)` → `IDF` → `NaiveBayes(modelType="multinomial", smoothing=1.0)`.
+  3. Evaluates accuracy, precision, recall, F1, confusion matrix, and classifies sample incoming messages.
+
+### Code 15 — Gaussian vs. Bernoulli Naive Bayes on Images (`compare_gaussian_bernoulli.py`)
+- **Goal:** Compare continuous Gaussian NB against binary Bernoulli NB on 8×8 handwritten digit images (`digits_images.csv`, 64 pixel columns `pixel_0`..`pixel_63`).
+- **How it works:**
+  1. Assembles the 64 pixels with `VectorAssembler` and normalizes to $[0, 1]$ with `MinMaxScaler` (`features_cont`).
+  2. Binarizes normalized pixels at `threshold=0.3` with `Binarizer` (`features_bin`) to capture ink presence vs. background.
+  3. Trains `NaiveBayes(modelType="gaussian")` on `features_cont` and `NaiveBayes(modelType="bernoulli")` on `features_bin`, comparing training time and classification metrics.
+
+### Code 16 — Multiclass Bayes' Theorem on Images (`bayes_multiclass_images.py`)
+- **Goal:** Perform 10-class (digits `0`–`9`) classification on `digits_multiclass.csv`.
+- **How it works:**
+  1. Assembles and MinMax-scales the 64 pixel features, then splits 80/20.
+  2. Computes and prints class priors $P(C_k)$ for digits `0`–`9` from the training set.
+  3. Trains `NaiveBayes(modelType="multinomial", smoothing=1.0)`, evaluates accuracy/precision/recall/F1, prints the 10×10 confusion matrix via `crosstab`, and inspects sample posterior probabilities.
+
+### Code 21 — Distributed K-NN on Images (`knn_spark_images.py`)
+- **Goal:** Classify 8×8 handwritten digit images (`digits_knn.csv`) using distributed K-Nearest Neighbours on Spark RDDs.
+- **How it works:**
+  1. Normalizes the 64 pixel values to $[0, 1]$ and splits 80/20.
+  2. Broadcasts the training vectors to all executors using `sc.broadcast(...)` and parallelizes test queries across 4 partitions (`sc.parallelize(..., 4)`).
+  3. Inside `mapPartitions`, computes Euclidean distances $\|X_q - X_i\|_2$ with NumPy, picks the $k$ nearest neighbors, and predicts by majority vote (`Counter`).
+  4. Sweeps $k \in \{1, 3, 5, 7, 9\}$ to find the best $k$ and prints the 10×10 confusion matrix.
+
+---
+
 ## Quick Start: Running Any Assignment
 
 1. **Clone the repository:**
