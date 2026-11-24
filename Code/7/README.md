@@ -57,7 +57,7 @@ cd /Users/mandal/Downloads/7
 ./run.sh
 ```
 Or with custom data:
-```bash
+```bash 
 ./run.sh /path/to/custom_data.csv
 ```
 
