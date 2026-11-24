@@ -15,7 +15,7 @@ FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
 
 -- (Optional) Command to load data from a local CSV file into the table
-LOAD DATA LOCAL INPATH '/Users/mandal/3rd_Sem/Data_Analytics/Code/5/data.csv' INTO TABLE sales_records;
+LOAD DATA LOCAL INPATH '/home/hp/Data-Analytics-Assignments/Code/5/data.csv' INTO TABLE sales_records;
 
 -- ==========================================
 -- AGGREGATION QUERIES
